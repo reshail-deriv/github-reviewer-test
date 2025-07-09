@@ -8,7 +8,7 @@ jobs:
   review:
     runs-on: ubuntu-latest
     container:
-      image: asia-southeast1-docker.pkg.dev/deriv-bi-ai-sandbox/bi-pr-review-test-githubactions-asia-southeast1/bi-pr-review:latest
+      image: asia-southeast1-docker.pkg.dev/deriv-bi-ai-sandbox/bi-pr-review-test-githubactions-asia-southeast1/bi-pr-review:20250709-153012
       credentials:
         username: _json_key
         password: ${{ secrets.GCR_PASSWORD }}
