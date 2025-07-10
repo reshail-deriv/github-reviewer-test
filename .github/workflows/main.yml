@@ -26,7 +26,7 @@ jobs:
           head -2 key.json
           jq . key.json || cat key.json # Show if valid, or output for manual check
           gcloud auth activate-service-account --key-file=key.json
-          gcloud --quiet config set project "${{ secrets.GCP_PROJECT_ID }}"
+          gcloud --quiet config set project "deriv-bi-ai-sandbox"
         env:
           GCLOUD_SERVICE_KEY: ${{ secrets.GCLOUD_SERVICE_KEY }}
 
@@ -36,7 +36,7 @@ jobs:
             -v ${{ github.workspace }}:/workspace \
             -w /workspace \
             -e GCLOUD_SERVICE_KEY="${{ secrets.GCLOUD_SERVICE_KEY }}" \
-            -e GOOGLE_PROJECT_ID="${{ secrets.GCP_PROJECT_ID }}" \
+            -e GOOGLE_PROJECT_ID="deriv-bi-ai-sandbox" \
             -e LLM_TOKEN="${{ secrets.LLM_TOKEN }}" \
             -e SLACK_BOT_TOKEN="${{ secrets.SLACK_BOT_TOKEN }}" \
             -e SLACK_CHANNEL="${{ secrets.SLACK_CHANNEL }}" \
