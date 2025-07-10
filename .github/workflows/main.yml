@@ -18,35 +18,32 @@ jobs:
           username: _json_key
           password: ${{ secrets.GCLOUD_SERVICE_KEY }}
 
-      - name: Setup Google Cloud credentials
+      - name: Create environment file
         run: |
-          cat > key.json <<EOF
-          $GCLOUD_SERVICE_KEY
+          cat > .env <<EOF
+          GOOGLE_PROJECT_ID=deriv-bi-ai-sandbox
+          LLM_TOKEN=${{ secrets.LLM_TOKEN }}
+          SLACK_BOT_TOKEN=${{ secrets.SLACK_BOT_TOKEN }}
+          SLACK_CHANNEL=${{ secrets.SLACK_CHANNEL }}
+          SUPABASE_URL=${{ secrets.SUPABASE_URL }}
+          SUPABASE_API_KEY=${{ secrets.SUPABASE_API_KEY }}
+          SUPABASE_EMAIL=${{ secrets.SUPABASE_EMAIL }}
+          SUPABASE_PASSWORD=${{ secrets.SUPABASE_PASSWORD }}
+          GITHUB_TOKEN=${{ secrets.BI_BOT_TOKEN }}
+          GITHUB_REPOSITORY=${{ github.repository }}
+          GITHUB_PR_NUMBER=${{ github.event.pull_request.number }}
           EOF
-          head -2 key.json
-          jq . key.json || cat key.json # Show if valid, or output for manual check
-          gcloud auth activate-service-account --key-file=key.json
-          gcloud --quiet config set project "deriv-bi-ai-sandbox"
-        env:
-          GCLOUD_SERVICE_KEY: ${{ secrets.GCLOUD_SERVICE_KEY }}
-
+      
+      - name: Create GCloud key file
+        run: |
+          echo '${{ secrets.GCLOUD_SERVICE_KEY }}' > gcloud-key.json
+      
       - name: Run review agent and validations in container
         run: |
           docker run --rm \
             -v ${{ github.workspace }}:/workspace \
-            -v /tmp/gcloud-key.json:/tmp/gcloud-key.json \
             -w /workspace \
-            -e GCLOUD_SERVICE_KEY="${{ secrets.GCLOUD_SERVICE_KEY }}" \
-            -e GOOGLE_PROJECT_ID="deriv-bi-ai-sandbox" \
-            -e LLM_TOKEN="${{ secrets.LLM_TOKEN }}" \
-            -e SLACK_BOT_TOKEN="${{ secrets.SLACK_BOT_TOKEN }}" \
-            -e SLACK_CHANNEL="${{ secrets.SLACK_CHANNEL }}" \
-            -e SUPABASE_URL="${{ secrets.SUPABASE_URL }}" \
-            -e SUPABASE_API_KEY="${{ secrets.SUPABASE_API_KEY }}" \
-            -e SUPABASE_EMAIL="${{ secrets.SUPABASE_EMAIL }}" \
-            -e SUPABASE_PASSWORD="${{ secrets.SUPABASE_PASSWORD }}" \
-            -e GITHUB_TOKEN="${{ secrets.BI_BOT_TOKEN }}" \
-            -e GITHUB_REPOSITORY="${{ github.repository }}" \
-            -e GITHUB_PR_NUMBER="${{ github.event.pull_request.number }}" \
+            --env-file .env \
+            -e GCLOUD_SERVICE_KEY="$(cat gcloud-key.json)" \
             asia-southeast1-docker.pkg.dev/deriv-bi-ai-sandbox/bi-pr-review-test-githubactions-asia-southeast1/bi-pr-review:20250709-153012 \
             bash -c "python core/config_validator.py && python core/supabase_logger.py && python core/review_agent.py"
