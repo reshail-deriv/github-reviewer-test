@@ -46,5 +46,5 @@ jobs:
             --env-file .env \
             -e GCLOUD_SERVICE_KEY="$(cat gcloud-key.json)" \
             -e GITHUB_WORKSPACE=/workspace \
-            asia-southeast1-docker.pkg.dev/deriv-bi-ai-sandbox/bi-pr-review-test-githubactions-asia-southeast1/bi-pr-review:20250709-153012 \
+            asia-southeast1-docker.pkg.dev/deriv-bi-ai-sandbox/bi-pr-review-test-githubactions-asia-southeast1/bi-pr-review:20250710-153118 \
             bash -c "python core/config_validator.py && python core/supabase_logger.py && python core/review_agent.py"
