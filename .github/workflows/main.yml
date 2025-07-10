@@ -22,9 +22,15 @@ jobs:
 
       - name: Setup Google Cloud credentials
         run: |
-          echo '${{ secrets.GCLOUD_SERVICE_KEY }}' > key.json
+          cat > key.json <<EOF
+          $GCLOUD_SERVICE_KEY
+          EOF
+          head -2 key.json
+          jq . key.json || cat key.json # Show if valid, or output for manual check
           gcloud auth activate-service-account --key-file=key.json
-          gcloud --quiet config set project '${{ secrets.GCP_PROJECT_ID }}'
+          gcloud --quiet config set project "${{ secrets.GCP_PROJECT_ID }}"
+        env:
+          GCLOUD_SERVICE_KEY: ${{ secrets.GCLOUD_SERVICE_KEY }}
 
       - name: Run review agent and validations in container
         run: |
