@@ -30,37 +30,11 @@ jobs:
         env:
           GCLOUD_SERVICE_KEY: ${{ secrets.GCLOUD_SERVICE_KEY }}
 
-
-
-
-      - name: Debug secrets (remove after fixing)
-        run: |
-          echo "Checking secrets..."
-          echo "GCLOUD_SERVICE_KEY length: ${#GCLOUD_SERVICE_KEY}"
-          echo "LLM_TOKEN length: ${#LLM_TOKEN}"
-          echo "SLACK_BOT_TOKEN length: ${#SLACK_BOT_TOKEN}"
-          echo "SLACK_CHANNEL: $SLACK_CHANNEL"
-          echo "SUPABASE_URL: $SUPABASE_URL"
-          echo "BI_BOT_TOKEN length: ${#BI_BOT_TOKEN}"
-        env:
-          GCLOUD_SERVICE_KEY: ${{ secrets.GCLOUD_SERVICE_KEY }}
-          LLM_TOKEN: ${{ secrets.LLM_TOKEN }}
-          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
-          SLACK_CHANNEL: ${{ secrets.SLACK_CHANNEL }}
-          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-          SUPABASE_API_KEY: ${{ secrets.SUPABASE_API_KEY }}
-          SUPABASE_EMAIL: ${{ secrets.SUPABASE_EMAIL }}
-          SUPABASE_PASSWORD: ${{ secrets.SUPABASE_PASSWORD }}
-          BI_BOT_TOKEN: ${{ secrets.BI_BOT_TOKEN }}
-
-
-
-
-
       - name: Run review agent and validations in container
         run: |
           docker run --rm \
             -v ${{ github.workspace }}:/workspace \
+            -v /tmp/gcloud-key.json:/tmp/gcloud-key.json \
             -w /workspace \
             -e GCLOUD_SERVICE_KEY="${{ secrets.GCLOUD_SERVICE_KEY }}" \
             -e GOOGLE_PROJECT_ID="deriv-bi-ai-sandbox" \
