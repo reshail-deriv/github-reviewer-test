@@ -41,8 +41,8 @@ jobs:
       - name: Run review agent and validations in container
         run: |
           docker run --rm \
-            -v ${{ github.workspace }}:/workspace \
-            -w /workspace \
+            -v ${{ github.workspace }}:/app \
+            -w /app \
             --env-file .env \
             -e GCLOUD_SERVICE_KEY="$(cat gcloud-key.json)" \
             asia-southeast1-docker.pkg.dev/deriv-bi-ai-sandbox/bi-pr-review-test-githubactions-asia-southeast1/bi-pr-review:20250709-153012 \
