@@ -23,7 +23,7 @@ jobs:
       - name: Gitleaks scan for secrets
         uses: gitleaks/gitleaks-action@v2
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.BI_BOT_TOKEN }}
 
       - name: Setup Google Cloud credentials
         run: |
@@ -45,7 +45,7 @@ jobs:
             -e SUPABASE_API_KEY="${{ secrets.SUPABASE_API_KEY }}" \
             -e SUPABASE_EMAIL="${{ secrets.SUPABASE_EMAIL }}" \
             -e SUPABASE_PASSWORD="${{ secrets.SUPABASE_PASSWORD }}" \
-            -e GITHUB_TOKEN="${{ secrets.GITHUB_TOKEN }}" \
+            -e GITHUB_TOKEN="${{ secrets.BI_BOT_TOKEN }}" \
             -e GITHUB_REPOSITORY="${{ github.repository }}" \
             -e GITHUB_PR_NUMBER="${{ github.event.pull_request.number }}" \
             asia-southeast1-docker.pkg.dev/deriv-bi-ai-sandbox/bi-pr-review-test-githubactions-asia-southeast1/bi-pr-review:20250709-153012 \
