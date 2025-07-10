@@ -1,0 +1,50 @@
+name: Pull Request Review
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Login to GCP Artifact Registry
+        uses: docker/login-action@v3
+        with:
+          registry: asia-southeast1-docker.pkg.dev
+          username: _json_key
+          password: ${{ secrets.GCLOUD_SERVICE_KEY }}
+
+      - name: Gitleaks scan for secrets
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Google Cloud credentials
+        run: |
+          echo "${{ secrets.GCLOUD_SERVICE_KEY }}" > key.json
+          gcloud auth activate-service-account --key-file=key.json
+          gcloud --quiet config set project "${{ secrets.GCP_PROJECT_ID }}"
+
+      - name: Run review agent and validations in container
+        run: |
+          docker run --rm \
+            -v ${{ github.workspace }}:/workspace \
+            -w /workspace \
+            -e GCLOUD_SERVICE_KEY="${{ secrets.GCLOUD_SERVICE_KEY }}" \
+            -e GOOGLE_PROJECT_ID="${{ secrets.GCP_PROJECT_ID }}" \
+            -e LLM_TOKEN="${{ secrets.LLM_TOKEN }}" \
+            -e SLACK_BOT_TOKEN="${{ secrets.SLACK_BOT_TOKEN }}" \
+            -e SLACK_CHANNEL="${{ secrets.SLACK_CHANNEL }}" \
+            -e SUPABASE_URL="${{ secrets.SUPABASE_URL }}" \
+            -e SUPABASE_API_KEY="${{ secrets.SUPABASE_API_KEY }}" \
+            -e SUPABASE_EMAIL="${{ secrets.SUPABASE_EMAIL }}" \
+            -e SUPABASE_PASSWORD="${{ secrets.SUPABASE_PASSWORD }}" \
+            -e GITHUB_TOKEN="${{ secrets.GITHUB_TOKEN }}" \
+            -e GITHUB_REPOSITORY="${{ github.repository }}" \
+            -e GITHUB_PR_NUMBER="${{ github.event.pull_request.number }}" \
+            asia-southeast1-docker.pkg.dev/deriv-bi-ai-sandbox/bi-pr-review-test-githubactions-asia-southeast1/bi-pr-review:20250709-153012 \
+            bash -c "python core/config_validator.py && python core/supabase_logger.py && python core/review_agent.py"
